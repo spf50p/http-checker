@@ -34,6 +34,7 @@ TELEGRAM_CHAT_ID=<chat-id>                   # optional, enables notifications
 |----------|----------|---------|-------------|
 | `DOMAIN` | yes | — | Comma-separated list of domains to check |
 | `SCHEME` | no | `https` | Request scheme (`http` or `https`) |
+| `CURL_TIMEOUT` | no | `5` | Curl timeout in seconds |
 | `TELEGRAM_BOT_TOKEN` | no | — | Telegram bot token for notifications |
 | `TELEGRAM_CHAT_ID` | no | — | Telegram chat ID for notifications |
 | `HC_CONF` (env) | no | `.http-checker.conf` | Path to the config file |
