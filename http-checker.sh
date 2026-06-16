@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -eo pipefail
 
 HC_CONF=${HC_CONF:-.http-checker.conf}
 
@@ -13,6 +13,7 @@ if [[ -n "$1" ]]; then
 fi
 
 SCHEME=${SCHEME:-https}
+CURL_TIMEOUT=${CURL_TIMEOUT:-5}
 
 log_error() {
   local message=$1
@@ -28,8 +29,10 @@ send_telegram_message() {
   local message=$1
 
   if [[ -n "$TELEGRAM_BOT_TOKEN" && -n "$TELEGRAM_CHAT_ID" ]]; then
-    curl -fsX POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-      -d "chat_id=${TELEGRAM_CHAT_ID}" -d "text=${message}" >/dev/null 2>&1
+    if ! curl -fsX POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+      -d "chat_id=${TELEGRAM_CHAT_ID}" -d "text=${message}" >/dev/null 2>&1; then
+      log_error "Failed to send Telegram message"
+    fi
     return 0
   fi
 
@@ -49,7 +52,7 @@ check_domain() {
   fi
 
   for ip in $result; do
-    if ! curl -fs --connect-timeout 5 --resolve "$domain:443:$ip" \
+    if ! curl -fs --connect-timeout "$CURL_TIMEOUT" --resolve "$domain:443:$ip" \
        "$scheme://$domain" -o /dev/null -w '%{json}' | \
        jq -r '"url=\(.url) remote-ip=\(.remote_ip) http-code=\(.http_code) time=\(.time_total)"'; then
 
