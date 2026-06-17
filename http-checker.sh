@@ -14,6 +14,7 @@ fi
 
 SCHEME=${SCHEME:-https}
 CURL_TIMEOUT=${CURL_TIMEOUT:-5}
+TELEGRAM_API_URL=${TELEGRAM_API_URL:-https://api.telegram.org}
 
 log_error() {
   local message=$1
@@ -29,7 +30,7 @@ send_telegram_message() {
   local message=$1
 
   if [[ -n "$TELEGRAM_BOT_TOKEN" && -n "$TELEGRAM_CHAT_ID" ]]; then
-    if ! curl -fsX POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+    if ! curl -fsX POST "${TELEGRAM_API_URL}/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
       -d "chat_id=${TELEGRAM_CHAT_ID}" -d "text=${message}" >/dev/null 2>&1; then
       log_error "Failed to send Telegram message"
     fi
