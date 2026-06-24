@@ -13,6 +13,7 @@ if [[ -n "$1" ]]; then
 fi
 
 SCHEME=${SCHEME:-https}
+CURL_PORT=${CURL_PORT:-443}
 CURL_TIMEOUT=${CURL_TIMEOUT:-5}
 RETRY_COUNT=${RETRY_COUNT:-3}
 RETRY_INTERVAL=${RETRY_INTERVAL:-2}
@@ -57,7 +58,7 @@ check_domain() {
   for ip in $result; do
     local attempt=1
     while true; do
-      if curl -fs --connect-timeout "$CURL_TIMEOUT" --resolve "$domain:443:$ip" \
+      if curl -fs --connect-timeout "$CURL_TIMEOUT" --resolve "$domain:$CURL_PORT:$ip" \
          "$scheme://$domain" -o /dev/null -w '%{json}' | \
          jq -r '"url=\(.url) remote-ip=\(.remote_ip) http-code=\(.http_code) time=\(.time_total)"'; then
         break

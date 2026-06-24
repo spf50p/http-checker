@@ -35,18 +35,20 @@ current directory; override it with the `HC_CONF` environment variable.
 # .http-checker.conf
 DOMAIN=domain1.com,domain2.com,domain3.com   # comma-separated list of domains
 SCHEME=https                                 # optional, defaults to https
+CURL_PORT=443                                # optional, port curl connects to (443 for https, 80 for http)
 CURL_TIMEOUT=5                               # optional, connect timeout in seconds
 RETRY_COUNT=3                                # optional, attempts before reporting failure
 RETRY_INTERVAL=2                             # optional, seconds between retries
 TELEGRAM_BOT_TOKEN=<bot-token>               # optional, enables notifications
 TELEGRAM_CHAT_ID=<chat-id>                   # optional, enables notifications
-TELEGRAM_API_URL=https://api.telegram.org   # optional, Telegram API base URL
+TELEGRAM_API_URL=https://api.telegram.org    # optional, Telegram API base URL
 ```
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `DOMAIN` | yes | — | Comma-separated list of domains to check |
 | `SCHEME` | no | `https` | Request scheme (`http` or `https`) |
+| `CURL_PORT` | no | `443` | Port `curl` connects to via `--resolve` (`443` for https, `80` for http) |
 | `CURL_TIMEOUT` | no | `5` | Curl connect timeout in seconds |
 | `RETRY_COUNT` | no | `3` | Number of attempts per IP before reporting a failure |
 | `RETRY_INTERVAL` | no | `2` | Seconds to wait between retries |
