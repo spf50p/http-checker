@@ -14,6 +14,8 @@ fi
 
 SCHEME=${SCHEME:-https}
 CURL_TIMEOUT=${CURL_TIMEOUT:-5}
+RETRY_COUNT=${RETRY_COUNT:-3}
+RETRY_INTERVAL=${RETRY_INTERVAL:-2}
 TELEGRAM_API_URL=${TELEGRAM_API_URL:-https://api.telegram.org}
 
 log_error() {
@@ -53,14 +55,24 @@ check_domain() {
   fi
 
   for ip in $result; do
-    if ! curl -fs --connect-timeout "$CURL_TIMEOUT" --resolve "$domain:443:$ip" \
-       "$scheme://$domain" -o /dev/null -w '%{json}' | \
-       jq -r '"url=\(.url) remote-ip=\(.remote_ip) http-code=\(.http_code) time=\(.time_total)"'; then
+    local attempt=1
+    while true; do
+      if curl -fs --connect-timeout "$CURL_TIMEOUT" --resolve "$domain:443:$ip" \
+         "$scheme://$domain" -o /dev/null -w '%{json}' | \
+         jq -r '"url=\(.url) remote-ip=\(.remote_ip) http-code=\(.http_code) time=\(.time_total)"'; then
+        break
+      fi
 
-      log_error "curl failed for $domain ($ip)"
-      send_telegram_message "curl failed for $domain ($ip)"
-      # exit 1
-    fi
+      if [[ $attempt -ge $RETRY_COUNT ]]; then
+        log_error "curl failed for $domain ($ip) after $attempt attempts"
+        send_telegram_message "curl failed for $domain ($ip) after $attempt attempts"
+        break
+      fi
+
+      log_warning "curl failed for $domain ($ip), attempt $attempt/$RETRY_COUNT, retrying in ${RETRY_INTERVAL}s"
+      attempt=$((attempt + 1))
+      sleep "$RETRY_INTERVAL"
+    done
   done
 }
 
