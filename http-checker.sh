@@ -19,14 +19,19 @@ RETRY_COUNT=${RETRY_COUNT:-3}
 RETRY_INTERVAL=${RETRY_INTERVAL:-2}
 TELEGRAM_API_URL=${TELEGRAM_API_URL:-https://api.telegram.org}
 
+log_info() {
+  local message=$1
+  echo "[$(date +%Y-%m-%d\ %H:%M:%S)] [INFO] $message"
+}
+
 log_error() {
   local message=$1
-  echo "Error: $message"
+  echo "[$(date +%Y-%m-%d\ %H:%M:%S)] [ERROR] $message"
 }
 
 log_warning() {
   local message=$1
-  echo "Warning: $message"
+  echo "[$(date +%Y-%m-%d\ %H:%M:%S)] [WARNING] $message"
 }
 
 send_telegram_message() {
@@ -102,6 +107,10 @@ if [[ "$DOMAIN" == "check-tg" ]]; then
   exit 0
 fi
 
+log_info "Starting..."
+
 for domain in ${DOMAIN//,/ }; do
   check_domain "$domain" "$SCHEME"
 done
+
+log_info "Finished."
